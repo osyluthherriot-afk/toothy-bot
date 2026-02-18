@@ -303,8 +303,8 @@ client.on('interactionCreate', async interaction => {
             await db.updateUser(userId, { slots: {} });
 
             // Step 3: Scan channels for messages with ✅ reaction from this user
-            let added = 0;
             let scanned = 0;
+            const tasks = [];
 
             for (const channelId of CHANNEL_IDS) {
                 try {
@@ -338,28 +338,19 @@ client.on('interactionCreate', async interaction => {
                                 continue;
                             }
 
-                            // This user reacted ✅ — re-add all image attachments
+                            // This user reacted ✅ — queue all image attachments
                             const category = CHANNEL_CATEGORY_MAP[channelId] || 'items';
                             for (const [attKey, attachment] of message.attachments) {
                                 if (!attachment.contentType?.startsWith('image/')) continue;
 
-                                try {
-                                    // Upload to ImgBB (if configured)
-                                    const hostedUrl = await uploadToImageHost(attachment.url);
-
-                                    await db.addItem(userId, {
-                                        filename: attachment.name,
-                                        url: hostedUrl || attachment.url, // Fallback to Discord URL
-                                        messageId: msgId,
-                                        channelId: channelId,
-                                        category: category,
-                                        sender: message.author.username,
-                                        content: message.content
-                                    });
-                                    added++;
-                                } catch (e) {
-                                    console.error(`[RECHECK] Failed to add ${attachment.name}:`, e);
-                                }
+                                tasks.push({
+                                    attachment,
+                                    msgId,
+                                    channelId,
+                                    category,
+                                    sender: message.author.username,
+                                    content: message.content
+                                });
                             }
                         }
 
@@ -369,6 +360,42 @@ client.on('interactionCreate', async interaction => {
                     }
                 } catch (error) {
                     console.error(`[RECHECK] Failed to scan channel ${channelId}:`, error);
+                }
+            }
+
+            // Step 4: Process tasks in parallel chunks
+            let added = 0;
+            let failed = 0;
+            const CHUNK_SIZE = 5;
+
+            if (tasks.length > 0) {
+                await buttonInteraction.editReply({
+                    content: `🔄 Scanned ${scanned} messages. Found ${tasks.length} items.\n🚀 Uploading to ImgBB (this may take a minute)...`,
+                    components: []
+                });
+
+                for (let i = 0; i < tasks.length; i += CHUNK_SIZE) {
+                    const chunk = tasks.slice(i, i + CHUNK_SIZE);
+                    await Promise.all(chunk.map(async (task) => {
+                        try {
+                            // Upload to ImgBB (if configured)
+                            const hostedUrl = await uploadToImageHost(task.attachment.url);
+
+                            await db.addItem(userId, {
+                                filename: task.attachment.filename || task.attachment.name,
+                                url: hostedUrl || task.attachment.url, // Fallback
+                                messageId: task.msgId,
+                                channelId: task.channelId,
+                                category: task.category,
+                                sender: task.sender,
+                                content: task.content
+                            });
+                            added++;
+                        } catch (e) {
+                            console.error(`[RECHECK] Failed to add item:`, e);
+                            failed++;
+                        }
+                    }));
                 }
             }
 

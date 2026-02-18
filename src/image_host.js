@@ -14,11 +14,21 @@ async function uploadToImageHost(imageUrl) {
     }
 
     try {
-        const formData = new FormData();
-        formData.append('image', imageUrl);
+        // 1. Download image buffer from Discord
+        // This avoids issues where ImgBB fails to fetch from Discord CDN URLs directly
+        const imageResponse = await axios.get(imageUrl, { responseType: 'arraybuffer' });
+        const buffer = Buffer.from(imageResponse.data, 'binary');
 
+        // 2. Prepare FormData with buffer
+        const formData = new FormData();
+        // Extract filename from URL or use default
+        const filename = imageUrl.split('/').pop().split('?')[0] || 'image.png';
+        formData.append('image', buffer, { filename: filename });
+
+        // 3. Upload to ImgBB
         const response = await axios.post(`https://api.imgbb.com/1/upload?key=${apiKey}`, formData, {
-            headers: formData.getHeaders()
+            headers: formData.getHeaders(),
+            timeout: 30000 // 30 second timeout
         });
 
         if (response.data && response.data.success) {
@@ -29,7 +39,7 @@ async function uploadToImageHost(imageUrl) {
             return null;
         }
     } catch (error) {
-        console.error('[IMG_HOST] Error uploading:', error.response?.data || error.message);
+        console.error('[IMG_HOST] Error uploading:', error.message);
         return null;
     }
 }
