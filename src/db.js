@@ -123,5 +123,9 @@ module.exports = {
     deleteItem,
     deleteAllUserItems,
     getParty,
-    updatePartyXP
+    updatePartyXP,
+    clearAllItems: async function () {
+        const res = await Item.deleteMany({});
+        return res.deletedCount;
+    }
 };

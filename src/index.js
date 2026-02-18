@@ -101,10 +101,16 @@ const commands = [
         .setDescription('Get a suggestion for your Bonus Action'),
     new SlashCommandBuilder()
         .setName('recheck')
-        .setDescription('Wipe inventory and re-scan channels for all ✅ items')
+        .setDescription('Admin: Wipe and re-check inventory for a user (or yourself)')
         .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages)
         .addUserOption(option =>
-            option.setName('user').setDescription('Target user (default: yourself)').setRequired(false)),
+            option.setName('user')
+                .setDescription(' The user to recheck (defaults to you)')
+                .setRequired(false)),
+    new SlashCommandBuilder()
+        .setName('nuke')
+        .setDescription('Admin: NUKE EVERYTHING and rescan ALL channels for ALL users (Fast)')
+        .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages),
     new SlashCommandBuilder()
         .setName('horoscope')
         .setDescription('Trigger the daily horoscope now (Admin)')
@@ -410,6 +416,155 @@ client.on('interactionCreate', async interaction => {
             await interaction.editReply({ content: '⏰ Recheck timed out. No changes were made.', components: [] });
         }
     }
+    // NUKE COMMAND
+    if (interaction.commandName === 'nuke') {
+        const row = new ActionRowBuilder()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId('confirm_nuke')
+                    .setLabel('☢️ CONFIRM NUKE ALL ☢️')
+                    .setStyle(ButtonStyle.Danger),
+                new ButtonBuilder()
+                    .setCustomId('cancel_nuke')
+                    .setLabel('Cancel')
+                    .setStyle(ButtonStyle.Secondary)
+            );
+
+        await interaction.reply({
+            content: '⚠️ **WARNING: NUKE DETECTED** ⚠️\n\nThis will **DELETE ALL ITEMS** for **EVERYONE** and rescan all channels from scratch.\nThis handles everyone at once and is faster than individual rechecks.\n\nAre you sure?',
+            components: [row],
+            ephemeral: true
+        });
+    }
+});
+
+// BUTTON HANDLER (Nuke)
+client.on('interactionCreate', async interaction => {
+    if (!interaction.isButton()) return;
+    if (!['confirm_nuke', 'cancel_nuke'].includes(interaction.customId)) return;
+
+    if (interaction.customId === 'cancel_nuke') {
+        await interaction.update({ content: 'Nuke cancelled. Phew! 😅', components: [] });
+        return;
+    }
+
+    if (interaction.customId === 'confirm_nuke') {
+        const start = Date.now();
+        await interaction.update({ content: '☢️ **INITIATING NUKE...**\n🗑️ Wiping database...', components: [] });
+
+        try {
+            // 1. Wipe everything
+            const deletedCount = await db.clearAllItems();
+
+            // 2. Scan all channels
+            const tasks = [];
+            let scanned = 0;
+            const uniqueUsers = new Set();
+            const channels = process.env.CHANNEL_ID ? process.env.CHANNEL_ID.split(',').map(id => id.trim()) : [];
+
+            await interaction.editReply({ content: `🗑️ Wiped ${deletedCount} items.\n🔍 Scanning ${channels.length} channels...` });
+
+            for (const channelId of channels) {
+                try {
+                    const channel = await client.channels.fetch(channelId);
+                    if (!channel) continue;
+
+                    let lastId = null;
+                    let fetchedAll = false;
+                    let batchCount = 0;
+                    const MAX_BATCHES = 10; // Scan deeply
+
+                    while (!fetchedAll && batchCount < MAX_BATCHES) {
+                        const options = { limit: 100 };
+                        if (lastId) options.before = lastId;
+
+                        const messages = await channel.messages.fetch(options);
+                        if (messages.size === 0) break;
+
+                        for (const [msgId, message] of messages) {
+                            scanned++;
+                            if (message.attachments.size === 0) continue;
+
+                            // Find valid reactions
+                            const checkReaction = message.reactions.cache.find(r => r.emoji.name === '✅');
+                            if (!checkReaction) continue;
+
+                            try {
+                                const reactors = await checkReaction.users.fetch();
+                                const category = CHANNEL_CATEGORY_MAP[channelId] || 'items';
+
+                                for (const [reactorId, user] of reactors) {
+                                    if (user.bot) continue;
+                                    uniqueUsers.add(user.username);
+
+                                    for (const [attKey, attachment] of message.attachments) {
+                                        if (!attachment.contentType?.startsWith('image/')) continue;
+
+                                        tasks.push({
+                                            userId: reactorId,
+                                            attachment,
+                                            msgId,
+                                            channelId,
+                                            category,
+                                            sender: message.author.username,
+                                            content: message.content
+                                        });
+                                    }
+                                }
+                            } catch (e) {
+                                continue;
+                            }
+                        }
+                        lastId = messages.last().id;
+                        batchCount++;
+                        if (messages.size < 100) fetchedAll = true;
+                    }
+                } catch (e) {
+                    console.error(`Failed to scan channel ${channelId}`, e);
+                }
+            }
+
+            // 3. Process uploads
+            const totalTasks = tasks.length;
+            await interaction.editReply({ content: `found ${totalTasks} items for ${uniqueUsers.size} users: ${Array.from(uniqueUsers).join(', ')}.\n🚀 Starting upload batch process...` });
+
+            let completed = 0;
+            let errors = 0;
+            const CHUNK_SIZE = 10; // More aggressive concurrency
+
+            for (let i = 0; i < tasks.length; i += CHUNK_SIZE) {
+                const chunk = tasks.slice(i, i + CHUNK_SIZE);
+                await Promise.all(chunk.map(async (task) => {
+                    try {
+                        const hostedUrl = await uploadToCloudinary(task.attachment.url);
+                        await db.addItem(task.userId, {
+                            filename: task.attachment.filename || task.attachment.name,
+                            url: hostedUrl || task.attachment.url,
+                            messageId: task.messageId,
+                            channelId: task.channelId,
+                            category: task.category,
+                            sender: task.sender,
+                            content: task.content
+                        });
+                        completed++;
+                    } catch (e) {
+                        console.error(e);
+                        errors++;
+                    }
+                }));
+            }
+
+            const duration = ((Date.now() - start) / 1000).toFixed(1);
+            await interaction.editReply({
+                content: `✅ **NUKE COMPLETE!**\n⏱️ Time: ${duration}s\n🗑️ Deleted old: ${deletedCount}\n📦 Re-added: ${completed}\n❌ Errors: ${errors}\n👥 Users processed: ${uniqueUsers.size}`
+            });
+
+        } catch (error) {
+            console.error('Nuke failed:', error);
+            await interaction.editReply({ content: `❌ **Nuke Failed:** ${error.message}` });
+        }
+    }
+
 });
 
 // REACTION HANDLER (ADD ITEM)
