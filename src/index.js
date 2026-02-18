@@ -5,7 +5,7 @@ const { Client, GatewayIntentBits, REST, Routes, SlashCommandBuilder, Partials, 
 const { startServer } = require('./server');
 const db = require('./db');
 const { scheduleHoroscope, sendHoroscope } = require('./horoscope');
-const { uploadToImageHost } = require('./image_host');
+const { uploadToCloudinary } = require('./cloudinary');
 
 // Connect to DB
 // Database connection managed in init()
@@ -378,12 +378,12 @@ client.on('interactionCreate', async interaction => {
                     const chunk = tasks.slice(i, i + CHUNK_SIZE);
                     await Promise.all(chunk.map(async (task) => {
                         try {
-                            // Upload to ImgBB (if configured)
-                            const hostedUrl = await uploadToImageHost(task.attachment.url);
+                            // Upload to Cloudinary (if configured)
+                            const hostedUrl = await uploadToCloudinary(task.attachment.url);
 
                             await db.addItem(userId, {
-                                filename: task.attachment.filename || task.attachment.name,
-                                url: hostedUrl || task.attachment.url, // Fallback
+                                filename: task.attachment.filename,
+                                url: hostedUrl || task.attachment.url, // Fallback to Discord URL
                                 messageId: task.msgId,
                                 channelId: task.channelId,
                                 category: task.category,
@@ -448,8 +448,8 @@ client.on('messageReactionAdd', async (reaction, user) => {
                 // Determine category based on channel
                 const category = CHANNEL_CATEGORY_MAP[message.channelId] || 'items';
 
-                // Upload to ImgBB (if configured)
-                const hostedUrl = await uploadToImageHost(attachment.url);
+                // Upload to Cloudinary (if configured)
+                const hostedUrl = await uploadToCloudinary(attachment.url);
 
                 // Add to DB (Stateless: Use URL directly)
                 await db.addItem(user.id, {
