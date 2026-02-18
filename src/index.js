@@ -5,7 +5,7 @@ const { Client, GatewayIntentBits, REST, Routes, SlashCommandBuilder, Partials, 
 const { startServer } = require('./server');
 const db = require('./db');
 const { scheduleHoroscope, sendHoroscope } = require('./horoscope');
-const { uploadToImgur } = require('./imgur');
+const { uploadToImageHost } = require('./image_host');
 
 // Connect to DB
 // Database connection managed in init()
@@ -344,12 +344,12 @@ client.on('interactionCreate', async interaction => {
                                 if (!attachment.contentType?.startsWith('image/')) continue;
 
                                 try {
-                                    // Upload to Imgur (if configured)
-                                    const imgurUrl = await uploadToImgur(attachment.url);
+                                    // Upload to ImgBB (if configured)
+                                    const hostedUrl = await uploadToImageHost(attachment.url);
 
                                     await db.addItem(userId, {
                                         filename: attachment.name,
-                                        url: imgurUrl || attachment.url, // Fallback to Discord URL
+                                        url: hostedUrl || attachment.url, // Fallback to Discord URL
                                         messageId: msgId,
                                         channelId: channelId,
                                         category: category,
@@ -421,13 +421,13 @@ client.on('messageReactionAdd', async (reaction, user) => {
                 // Determine category based on channel
                 const category = CHANNEL_CATEGORY_MAP[message.channelId] || 'items';
 
-                // Upload to Imgur (if configured)
-                const imgurUrl = await uploadToImgur(attachment.url);
+                // Upload to ImgBB (if configured)
+                const hostedUrl = await uploadToImageHost(attachment.url);
 
                 // Add to DB (Stateless: Use URL directly)
                 await db.addItem(user.id, {
                     filename: attachment.name,
-                    url: imgurUrl || attachment.url, // Fallback to Discord URL
+                    url: hostedUrl || attachment.url, // Fallback to Discord URL
                     messageId: message.id,
                     channelId: message.channelId,
                     category: category,
