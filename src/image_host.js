@@ -15,15 +15,23 @@ async function uploadToImageHost(imageUrl) {
 
     try {
         // 1. Download image buffer from Discord
-        // This avoids issues where ImgBB fails to fetch from Discord CDN URLs directly
         const imageResponse = await axios.get(imageUrl, { responseType: 'arraybuffer' });
-        const buffer = Buffer.from(imageResponse.data, 'binary');
+        const buffer = Buffer.from(imageResponse.data); // No 'binary' encoding needed for arraybuffer
 
-        // 2. Prepare FormData with buffer
+        // 2. Prepare FormData
         const formData = new FormData();
-        // Extract filename from URL or use default
-        const filename = imageUrl.split('/').pop().split('?')[0] || 'image.png';
-        formData.append('image', buffer, { filename: filename });
+
+        // Extract filename and determine content type
+        let filename = imageUrl.split('/').pop().split('?')[0] || 'image.png';
+        if (!filename.match(/\.(png|jpg|jpeg|gif|webp)$/i)) {
+            filename += '.png'; // Default extension if missing
+        }
+
+        // Append with explicit options
+        formData.append('image', buffer, {
+            filename: filename,
+            contentType: imageResponse.headers['content-type'] || 'image/png'
+        });
 
         // 3. Upload to ImgBB
         const response = await axios.post(`https://api.imgbb.com/1/upload?key=${apiKey}`, formData, {
