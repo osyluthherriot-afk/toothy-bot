@@ -47,7 +47,14 @@ const commands = [
         .setDescription('Get a suggestion for your Bonus Action'),
     new SlashCommandBuilder()
         .setName('refresh_items')
-        .setDescription('Refresh all broken Discord image URLs from original messages')
+        .setDescription('Refresh all broken Discord image URLs from original messages'),
+    new SlashCommandBuilder()
+        .setName('condition')
+        .setDescription('Look up a specific condition')
+        .addStringOption(option =>
+            option.setName('name')
+                .setDescription('Name of the condition to look up')
+                .setRequired(true))
 ].map(c => c.toJSON());
 
 const rest = new REST({ version: '10' }).setToken(TOKEN);

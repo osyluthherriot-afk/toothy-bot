@@ -114,7 +114,14 @@ const commands = [
     new SlashCommandBuilder()
         .setName('horoscope')
         .setDescription('Trigger the daily horoscope now (Admin)')
-        .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages)
+        .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages),
+    new SlashCommandBuilder()
+        .setName('condition')
+        .setDescription('Look up a specific condition')
+        .addStringOption(option =>
+            option.setName('name')
+                .setDescription('Name of the condition to look up')
+                .setRequired(true))
 ].map(c => c.toJSON());
 
 const rest = new REST({ version: '10' }).setToken(TOKEN);
@@ -259,6 +266,33 @@ client.on('interactionCreate', async interaction => {
         await interaction.deferReply({ ephemeral: true });
         await sendHoroscope(client);
         await interaction.editReply({ content: '🔮 Horoscope sent!' });
+    }
+
+    // --- CONDITION ---
+    else if (interaction.commandName === 'condition') {
+        const queryName = interaction.options.getString('name').toLowerCase().trim();
+        const conditions = require('./conditions');
+
+        let conditionData = conditions[queryName.replace(/\s+/g, '_')];
+
+        if (!conditionData) {
+            conditionData = Object.values(conditions).find(c => c.name.toLowerCase() === queryName);
+        }
+
+        if (!conditionData) {
+            conditionData = Object.values(conditions).find(c => c.name.toLowerCase().includes(queryName));
+        }
+
+        if (!conditionData) {
+            await interaction.reply({ content: `❌ Condition **${interaction.options.getString('name')}** not found.`, ephemeral: true });
+            return;
+        }
+
+        let replyText = `**${conditionData.name}**\n${conditionData.description}`;
+        if (conditionData.recovery) {
+            replyText += `\n> **Recovery/Fix:** ${conditionData.recovery}`;
+        }
+        await interaction.reply(replyText);
     }
 
     // --- RECHECK (Force Re-scan) ---
