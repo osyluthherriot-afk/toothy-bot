@@ -96,6 +96,20 @@
             .dashboard {
                 grid-template-columns: 1fr;
             }
+
+            .source-iframe {
+                height: 850px;
+                top: -50px;
+            }
+        }
+
+        .source-iframe {
+            width: 100%;
+            height: 875px;
+            position: absolute;
+            top: -75px;
+            left: 0;
+            border: none;
         }
 
         /* EQUIPMENT PANEL */
@@ -428,9 +442,8 @@
                     <!-- Iframe wrapper to hide the header -->
                     <div
                         style="overflow: hidden; height: 800px; border-radius: 8px; border: 1px solid #444; background: #fff; position: relative;">
-                        <!-- The 5e.tools header is about 75px tall, so we push the iframe up by -75px -->
-                        <iframe src="https://5e.tools/classes.html#artificer_efa"
-                            style="width: 100%; height: 875px; position: absolute; top: -75px; left: 0; border: none;"></iframe>
+                        <!-- The 5e.tools header height is cropped with responsive CSS (.source-iframe) -->
+                        <iframe src="https://5e.tools/classes.html#artificer_efa" class="source-iframe"></iframe>
                     </div>
                 </div>
             </div>
