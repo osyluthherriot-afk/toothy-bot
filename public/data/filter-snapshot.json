@@ -1,0 +1,71 @@
+{
+	"fileType": "filter-snapshot-PageFilterClasses",
+	"siteVersion": "2.24.3",
+	"state": {
+		"boxSnapshotDeckDefaultId": "d174a8f6-af64-4403-afc1-26feef557795",
+		"boxSnapshots": [
+			{
+				"id": "e5383c26-3126-4148-873d-90ab7c14cac3",
+				"entity": {
+					"manager_name": "Toothydev",
+					"filterSnapshots": [
+						{
+							"header": "Source",
+							"state": {
+								"TCE": 2,
+								"ERLW": 2,
+								"PHB": 2,
+								"SCAG": 2,
+								"XGE": 2,
+								"BGG": 2,
+								"VRGR": 2,
+								"DMG": 2,
+								"EGW": 2,
+								"DSotDQ": 2
+							},
+							"meta": {}
+						},
+						{
+							"header": "Primary Ability",
+							"state": {},
+							"meta": {}
+						},
+						{
+							"header": "Miscellaneous",
+							"state": {},
+							"meta": {}
+						},
+						{
+							"header": "Feature Level",
+							"state": {},
+							"meta": {}
+						},
+						{
+							"header": "Other/Text Options",
+							"state": {},
+							"meta": {}
+						}
+					],
+					"manager_loader_isExpanded": false
+				}
+			}
+		],
+		"boxSnapshotDecks": [
+			{
+				"id": "d174a8f6-af64-4403-afc1-26feef557795",
+				"entity": {
+					"manager_name": "Toothydev",
+					"boxSnapshotIds": [
+						{
+							"id": "20b331b4-e52c-4d46-b0d0-c9cc677b9897",
+							"entity": {
+								"boxSnapshotId": "e5383c26-3126-4148-873d-90ab7c14cac3"
+							}
+						}
+					],
+					"manager_loader_isExpanded": false
+				}
+			}
+		]
+	}
+}
