@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
+const axios = require('axios');
 const db = require('./db');
 
 const app = express();
@@ -92,6 +93,40 @@ app.delete('/api/items/:itemId', async (req, res) => {
     }
 
     res.json({ success: true });
+});
+
+// Proxy for 5e.tools to strip navigation
+app.get('/api/proxy/5etools', async (req, res) => {
+    try {
+        const response = await axios.get('https://5e.tools/classes.html', {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+            }
+        });
+
+        let html = response.data;
+
+        // Inject <base> tag to fix relative links (images, scripts, styles)
+        html = html.replace('<head>', '<head><base href="https://5e.tools/">');
+
+        // Inject CSS to hide the navigation bar and header
+        const styleInjection = `
+            <style>
+                #navigation, .page__nav, header, .flex-v-center.no-shrink.page__header, .ve-flex-col.no-shrink.opt-height.page__header { 
+                    display: none !important; 
+                }
+                body { 
+                    padding-top: 0 !important; 
+                }
+            </style>
+        `;
+        html = html.replace('</head>', `${styleInjection}</head>`);
+
+        res.send(html);
+    } catch (error) {
+        console.error('Proxy Error:', error.message);
+        res.status(500).send('Error proxying 5e.tools');
+    }
 });
 
 function startServer() {

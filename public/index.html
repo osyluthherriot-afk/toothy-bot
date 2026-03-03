@@ -92,30 +92,9 @@
             align-items: start;
         }
 
-        @media (max-width: 1200px) {
-            .source-iframe {
-                height: 865px;
-                top: -35px;
-            }
-        }
-
-        @media (max-width: 900px) {
-            .dashboard {
-                grid-template-columns: 1fr;
-            }
-
-            .source-iframe {
-                height: 840px;
-                top: -10px;
-            }
-        }
-
         .source-iframe {
             width: 100%;
-            height: 850px;
-            position: absolute;
-            top: -50px;
-            left: 0;
+            height: 100%;
             border: none;
         }
 
@@ -434,12 +413,16 @@
                                     Content</strong>.</li>
                             <li><strong>Load via URL:</strong> Click the <strong>Load from URL</strong> button at the
                                 bottom.</li>
-                            <li><strong>Add Links:</strong> Copy and paste the following RAW GitHub links one at a time:
+                            <li><strong>Add Links:</strong> Copy and paste the following RAW GitHub links one at a time
+                                (<strong>Load the second link first!</strong>):
                                 <div
                                     style="margin-top: 10px; padding: 10px; background: #1a1a1a; border-radius: 4px; font-family: monospace; word-break: break-all;">
+                                    <span style="color: #888; font-size: 0.8em;"># Load this one second (and delete
+                                        after first load):</span><br>
                                     <a href="https://raw.githubusercontent.com/Toothy-Nineveth/toothy-bot/main/public/data/xanathars-lost-notes.json"
                                         target="_blank"
                                         style="color: var(--accent-color);">https://raw.githubusercontent.com/Toothy-Nineveth/toothy-bot/main/public/data/xanathars-lost-notes.json</a><br><br>
+                                    <span style="color: #888; font-size: 0.8em;"># Load this one FIRST:</span><br>
                                     <a href="https://raw.githubusercontent.com/Toothy-Nineveth/toothy-bot/main/public/data/UASSD26.json"
                                         target="_blank"
                                         style="color: var(--accent-color);">https://raw.githubusercontent.com/Toothy-Nineveth/toothy-bot/main/public/data/UASSD26.json</a>
@@ -474,8 +457,8 @@
                     <!-- Iframe wrapper to hide the header -->
                     <div
                         style="overflow: hidden; height: 800px; border-radius: 8px; border: 1px solid #444; background: #fff; position: relative;">
-                        <!-- The 5e.tools header height is cropped with responsive CSS (.source-iframe) -->
-                        <iframe src="https://5e.tools/classes.html#artificer_efa" class="source-iframe"></iframe>
+                        <!-- Content proxied through server to strip navigation elements -->
+                        <iframe src="/api/proxy/5etools#artificer_efa" class="source-iframe"></iframe>
                     </div>
                 </div>
             </div>
