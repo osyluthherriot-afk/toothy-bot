@@ -1,13 +1,13 @@
 {
 	"fileType": "filter-snapshot-PageFilterClasses",
-	"siteVersion": "2.24.3",
+	"siteVersion": "2.25.0",
 	"state": {
-		"boxSnapshotDeckDefaultId": "d174a8f6-af64-4403-afc1-26feef557795",
+		"boxSnapshotDeckDefaultId": "4f40acd5-4a9e-4581-bec5-a38709487041",
 		"boxSnapshots": [
 			{
-				"id": "e5383c26-3126-4148-873d-90ab7c14cac3",
+				"id": "52a4464d-d080-4230-ad33-9d05bbd455f8",
 				"entity": {
-					"manager_name": "Toothydev",
+					"manager_name": "Snapshot",
 					"filterSnapshots": [
 						{
 							"header": "Source",
@@ -18,9 +18,11 @@
 								"SCAG": 2,
 								"XGE": 2,
 								"BGG": 2,
+								"MOT": 2,
 								"VRGR": 2,
 								"DMG": 2,
 								"EGW": 2,
+								"FTD": 2,
 								"DSotDQ": 2
 							},
 							"meta": {}
@@ -52,18 +54,18 @@
 		],
 		"boxSnapshotDecks": [
 			{
-				"id": "d174a8f6-af64-4403-afc1-26feef557795",
+				"id": "4f40acd5-4a9e-4581-bec5-a38709487041",
 				"entity": {
-					"manager_name": "Toothydev",
+					"manager_name": "Filter",
 					"boxSnapshotIds": [
 						{
-							"id": "20b331b4-e52c-4d46-b0d0-c9cc677b9897",
+							"id": "3240191f-ffa8-4963-b717-32ce2e9ab87e",
 							"entity": {
-								"boxSnapshotId": "e5383c26-3126-4148-873d-90ab7c14cac3"
+								"boxSnapshotId": "52a4464d-d080-4230-ad33-9d05bbd455f8"
 							}
 						}
 					],
-					"manager_loader_isExpanded": false
+					"manager_loader_isExpanded": true
 				}
 			}
 		]
