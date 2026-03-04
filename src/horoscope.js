@@ -21,7 +21,7 @@ const HOROSCOPE_MESSAGES = [
     "Canned Coffee",
     "They say today's our birthday. I'm glad we have made acquaintance. Even though Lord Alure just decided randomly...",
     "Spiders",
-    "Bleh!,
+    "Bleh!",
     "Field Trap,",
     "Opera.",
     "Three saints! Can you name all of them?",
