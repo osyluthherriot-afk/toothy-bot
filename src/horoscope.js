@@ -40,7 +40,6 @@ const HOROSCOPE_MESSAGES = [
     "Dreams are good!",
     "Better not tell you now.",
     "Outlook not so good.",
-    "Ramen",
     "Strawberry",
     "Moon",
     "What I just said was a lie.",
