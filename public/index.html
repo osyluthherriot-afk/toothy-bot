@@ -7,6 +7,7 @@
     <title>D&D Inventory</title>
     <style>
         :root {
+            /* Default Dark Theme */
             --bg-color: #121212;
             --card-bg: #1e1e1e;
             --slot-bg: #2a2a2a;
@@ -15,6 +16,43 @@
             --secondary-color: #4ecdc4;
             --gold-color: #ffd700;
             --soul-color: #a855f7;
+            --border-color: #444;
+        }
+
+        [data-theme="glacial"] {
+            --bg-color: #040814;
+            --card-bg: #0A1128;
+            --slot-bg: #0e1a38;
+            --text-color: #EBF4FA;
+            --accent-color: #00B4D8;
+            --secondary-color: #90E0EF;
+            --gold-color: #CAF0F8;
+            --soul-color: #48CAE4;
+            --border-color: #162A45;
+        }
+
+        [data-theme="earthy"] {
+            --bg-color: #F4F1EA;
+            --card-bg: #FFFFFF;
+            --slot-bg: #f9f8f4;
+            --text-color: #2C3E2D;
+            --accent-color: #D98A6C;
+            --secondary-color: #A3B18A;
+            --gold-color: #bfa15f;
+            --soul-color: #8c7853;
+            --border-color: #e0dcd3;
+        }
+
+        [data-theme="contrast"] {
+            --bg-color: #000000;
+            --card-bg: #111111;
+            --slot-bg: #1a1a1a;
+            --text-color: #FFFF00;
+            --accent-color: #FF0000;
+            --secondary-color: #00FF00;
+            --gold-color: #FFA500;
+            --soul-color: #FF00FF;
+            --border-color: #333333;
         }
 
         body {
@@ -23,6 +61,23 @@
             color: var(--text-color);
             margin: 0;
             padding: 20px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        #bgCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 1s;
+        }
+
+        [data-theme="glacial"] #bgCanvas.active {
+            opacity: 1;
         }
 
         /* HEADER / XP */
@@ -30,11 +85,11 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: #252525;
+            background: var(--card-bg);
             padding: 10px 20px;
             border-radius: 8px;
             margin-bottom: 20px;
-            border: 1px solid #444;
+            border: 1px solid var(--border-color);
         }
 
         .xp-display {
@@ -75,7 +130,7 @@
             border-radius: 8px;
             text-align: center;
             cursor: pointer;
-            border: 1px solid #444;
+            border: 1px solid var(--border-color);
             transition: 0.2s;
         }
 
@@ -124,7 +179,7 @@
             background: var(--card-bg);
             padding: 20px;
             border-radius: 12px;
-            border: 1px solid #333;
+            border: 1px solid var(--border-color);
         }
 
         .currencies {
@@ -136,8 +191,8 @@
         .currency-input {
             flex: 1;
             padding: 8px;
-            background: #111;
-            border: 1px solid #444;
+            background: var(--slot-bg);
+            border: 1px solid var(--border-color);
             color: var(--gold-color);
             font-weight: bold;
             border-radius: 4px;
@@ -164,7 +219,7 @@
 
         .slot-container {
             background: var(--slot-bg);
-            border: 1px dashed #555;
+            border: 1px dashed var(--border-color);
             border-radius: 6px;
             min-height: 80px;
             position: relative;
@@ -226,14 +281,14 @@
             border-radius: 8px;
             overflow: hidden;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-            border: 1px solid #333;
+            border: 1px solid var(--border-color);
             transition: transform 0.2s;
             position: relative;
         }
 
         .item-card:hover {
             transform: translateY(-2px);
-            border-color: #555;
+            border-color: var(--secondary-color);
         }
 
         .item-card.equipped {
@@ -241,25 +296,69 @@
             border-color: var(--secondary-color);
         }
 
-        .item-card img {
+        .item-image-container {
             width: 100%;
             height: 150px;
+            overflow: hidden;
+            cursor: zoom-in;
+        }
+
+        .item-card img {
+            width: 100%;
+            height: 100%;
             object-fit: cover;
-            cursor: pointer;
+            transform: scale(1.5);
+            transform-origin: top right;
+            transition: transform 0.3s;
+        }
+
+        .item-card img:hover {
+            transform: scale(1.5) translate(-2%, 2%);
         }
 
         .item-content {
             padding: 10px;
         }
 
+        .title-container {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 5px;
+        }
+
+        .title-container .pencil-icon {
+            opacity: 0;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            width: 16px;
+            height: 16px;
+        }
+
+        .title-container:hover .pencil-icon {
+            opacity: 1;
+        }
+
         .item-title {
             font-weight: bold;
             font-size: 0.95em;
             color: var(--accent-color);
-            margin-bottom: 5px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            flex: 1;
+        }
+
+        .edit-title-input {
+            width: 100%;
+            padding: 4px;
+            background: var(--slot-bg);
+            border: 1px solid var(--secondary-color);
+            color: var(--text-color);
+            border-radius: 4px;
+            font-size: 0.95em;
+            margin-bottom: 5px;
+            box-sizing: border-box;
         }
 
         .item-actions {
@@ -279,8 +378,9 @@
         }
 
         .btn-edit {
-            background: #444;
-            color: white;
+            background: var(--slot-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
         }
 
         .btn-equip {
@@ -310,12 +410,12 @@
         }
 
         .modal-content {
-            background: #252525;
+            background: var(--card-bg);
             padding: 20px;
             border-radius: 8px;
             width: 90%;
             max-width: 400px;
-            border: 1px solid #555;
+            border: 1px solid var(--border-color);
         }
 
         select,
@@ -323,9 +423,9 @@
         textarea {
             width: 100%;
             padding: 10px;
-            background: #111;
-            border: 1px solid #444;
-            color: white;
+            background: var(--slot-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
             border-radius: 4px;
             margin-bottom: 15px;
             box-sizing: border-box;
@@ -338,19 +438,26 @@
         }
 
         #modalImg {
-            max-width: 90%;
-            max-height: 90%;
+            max-width: 90vw;
+            max-height: 90vh;
+            object-fit: contain;
+            transform: none;
+            border-radius: 4px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
     </style>
 </head>
 
 <body>
+    <canvas id="bgCanvas"></canvas>
+
     <div class="top-bar">
         <div>
             <span class="xp-display" id="partyXpDisplay">Party XP: Loading...</span>
         </div>
         <div>
-            <h1 style="margin:0; font-size: 1.2em; display:inline;">🗡️ D&D Inventory</h1>
+            <h1 style="margin:0; font-size: 1.2em; display:inline; margin-right: 15px;">D&D Inventory</h1>
+            <button class="btn btn-edit" style="margin-right: 10px;" onclick="openSettings()">⚙️ Settings</button>
             <button id="backBtn" class="back-btn" onclick="showUserList()">Users</button>
         </div>
     </div>
@@ -520,6 +627,30 @@
         </div>
     </div>
 
+    <!-- SETTINGS MODAL -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h3 style="margin-top:0;">Settings</h3>
+                <button class="unequip-btn" style="position:relative; top:0; right:0;" onclick="closeSettings()">×</button>
+            </div>
+            
+            <label>Theme</label>
+            <select id="themeSelect" onchange="changeTheme()">
+                <option value="default">Default Dark</option>
+                <option value="glacial">Glacial Abyss (Cold/Dark)</option>
+                <option value="earthy">Earthy Minimal (Light)</option>
+                <option value="contrast">High Contrast (Accessibility)</option>
+            </select>
+
+            <label style="display:flex; align-items:center; gap:10px; cursor:pointer;">
+                <input type="checkbox" id="shaderToggle" onchange="toggleShader()" style="width:auto; margin:0;">
+                Enable Background Effects (WebGL)
+            </label>
+            <small style="color:#888; display:block; margin-top:5px;">Disable for better performance on low-end devices.</small>
+        </div>
+    </div>
+
     <script>
         // --- CONFIG ---
         const SLOTS = [
@@ -536,10 +667,196 @@
 
         // --- INIT ---
         document.addEventListener('DOMContentLoaded', () => {
+            loadSettings();
+            initWebGL();
             loadPartyXP();
             loadUsers();
             initPaperDoll();
         });
+
+        // --- SETTINGS & THEMES ---
+        function loadSettings() {
+            const savedTheme = localStorage.getItem('dnd-theme') || 'default';
+            const useShaders = localStorage.getItem('dnd-shaders') !== 'false'; // Default to true
+
+            document.getElementById('themeSelect').value = savedTheme;
+            document.getElementById('shaderToggle').checked = useShaders;
+            
+            applyTheme(savedTheme);
+            applyShaders(savedTheme, useShaders);
+        }
+
+        function openSettings() {
+            document.getElementById('settingsModal').style.display = 'flex';
+        }
+
+        function closeSettings() {
+            document.getElementById('settingsModal').style.display = 'none';
+        }
+
+        function changeTheme() {
+            const theme = document.getElementById('themeSelect').value;
+            localStorage.setItem('dnd-theme', theme);
+            applyTheme(theme);
+            
+            const useShaders = document.getElementById('shaderToggle').checked;
+            applyShaders(theme, useShaders);
+        }
+
+        function toggleShader() {
+            const useShaders = document.getElementById('shaderToggle').checked;
+            localStorage.setItem('dnd-shaders', useShaders);
+            
+            const theme = document.getElementById('themeSelect').value;
+            applyShaders(theme, useShaders);
+        }
+
+        function applyTheme(theme) {
+            if (theme === 'default') {
+                document.documentElement.removeAttribute('data-theme');
+            } else {
+                document.documentElement.setAttribute('data-theme', theme);
+            }
+        }
+
+        function applyShaders(theme, enabled) {
+            const canvas = document.getElementById('bgCanvas');
+            if (theme === 'glacial' && enabled) {
+                canvas.classList.add('active');
+                if(!glContextActive) startWebGL();
+            } else {
+                canvas.classList.remove('active');
+                stopWebGL();
+            }
+        }
+
+        // --- WEBGL SHADER LOGIC ---
+        let glContextActive = false;
+        let glAnimationId;
+        
+        function initWebGL() {
+            const canvas = document.getElementById('bgCanvas');
+            const gl = canvas.getContext('webgl');
+            if (!gl) return; // WebGL not supported
+
+            const vsSource = `
+                attribute vec4 aVertexPosition;
+                void main() {
+                    gl_Position = aVertexPosition;
+                }
+            `;
+
+            const fsSource = `
+                precision mediump float;
+                uniform vec2 u_resolution;
+                uniform float u_time;
+
+                void main() {
+                    vec2 st = gl_FragCoord.xy / u_resolution.xy;
+                    
+                    // Creates a slow drifting, wispy fog texture effect
+                    float y = st.y * 2.5 + sin(st.x * 5.0 + u_time * 0.5) * 0.2;
+                    float wave1 = sin(st.x * 3.0 + u_time * 0.2) * 0.5 + 0.5;
+                    float wave2 = cos(st.y * 4.0 - u_time * 0.3) * 0.5 + 0.5;
+                    
+                    float intensity = (wave1 + wave2) * 0.15 * y;
+
+                    // Deep void blue to piercing ice blue range
+                    vec3 color1 = vec3(0.015, 0.031, 0.078); // #040814
+                    vec3 color2 = vec3(0.000, 0.706, 0.847); // #00B4D8
+                    
+                    vec3 finalColor = mix(color1, color2, intensity);
+
+                    gl_FragColor = vec4(finalColor, 1.0);
+                }
+            `;
+
+            function createShader(gl, type, source) {
+                const shader = gl.createShader(type);
+                gl.shaderSource(shader, source);
+                gl.compileShader(shader);
+                if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+                    console.error('Shader error:', gl.getShaderInfoLog(shader));
+                    gl.deleteShader(shader);
+                    return null;
+                }
+                return shader;
+            }
+
+            const vertexShader = createShader(gl, gl.VERTEX_SHADER, vsSource);
+            const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fsSource);
+
+            const program = gl.createProgram();
+            gl.attachShader(program, vertexShader);
+            gl.attachShader(program, fragmentShader);
+            gl.linkProgram(program);
+
+            if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+                console.error('Program init failed:', gl.getProgramInfoLog(program));
+                return;
+            }
+
+            const positionAttributeLocation = gl.getAttribLocation(program, "aVertexPosition");
+            const positionBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+            const positions = [
+                -1.0,  1.0,
+                 1.0,  1.0,
+                -1.0, -1.0,
+                 1.0, -1.0,
+            ];
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+
+            canvas.webglData = { gl, program, positionAttributeLocation, positionBuffer };
+        }
+
+        function startWebGL() {
+            const canvas = document.getElementById('bgCanvas');
+            const data = canvas.webglData;
+            if (!data) return;
+            
+            glContextActive = true;
+            const { gl, program, positionAttributeLocation, positionBuffer } = data;
+            
+            const timeLocation = gl.getUniformLocation(program, "u_time");
+            const resLocation = gl.getUniformLocation(program, "u_resolution");
+
+            function render(time) {
+                if (!glContextActive) return;
+
+                // Resize canvas to match display size
+                const displayWidth  = canvas.clientWidth;
+                const displayHeight = canvas.clientHeight;
+
+                if (canvas.width !== displayWidth || canvas.height !== displayHeight) {
+                    canvas.width  = displayWidth;
+                    canvas.height = displayHeight;
+                }
+
+                gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+
+                gl.useProgram(program);
+                gl.enableVertexAttribArray(positionAttributeLocation);
+                gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+                gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
+
+                gl.uniform2f(resLocation, gl.canvas.width, gl.canvas.height);
+                gl.uniform1f(timeLocation, time * 0.001);
+
+                gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+                glAnimationId = requestAnimationFrame(render);
+            }
+            
+            glAnimationId = requestAnimationFrame(render);
+        }
+
+        function stopWebGL() {
+            glContextActive = false;
+            if (glAnimationId) {
+                cancelAnimationFrame(glAnimationId);
+            }
+        }
 
         function initPaperDoll() {
             const container = document.getElementById('paperDoll');
@@ -652,9 +969,17 @@
                 const isEquipped = equippedIds.includes(item.id);
                 return `
                 <div class="item-card ${isEquipped ? 'equipped' : ''}">
-                    <img src="${item.url}" onclick="viewImage('${item.url}')">
+                    <div class="item-image-container" onclick="viewImage('${item.url}')">
+                        <img src="${item.url}">
+                    </div>
                     <div class="item-content">
-                        <div class="item-title" title="${item.filename}">${item.filename}</div>
+                        <div class="title-container" id="title-container-${item.id}">
+                            <div class="item-title" title="${item.filename}" id="title-text-${item.id}">${item.filename}</div>
+                            <svg class="pencil-icon" onclick="startEditTitle('${item.id}')" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                            </svg>
+                        </div>
                         <div style="font-size:0.8em; color:#888; margin-bottom:5px;">Qty: ${item.quantity}</div>
                         <div class="item-actions">
                             <button class="btn btn-equip" onclick="openEquip('${item.id}')">${isEquipped ? 'Move' : 'Equip'}</button>
@@ -755,6 +1080,56 @@
             document.getElementById('editQty').value = item.quantity;
             document.getElementById('editNotes').value = item.notes || '';
             document.getElementById('editModal').style.display = 'flex';
+        }
+
+        // --- INLINE TITLE EDITING ---
+        function startEditTitle(id) {
+            const item = currentItems.find(i => i.id === id);
+            if (!item) return;
+
+            const container = document.getElementById(`title-container-${id}`);
+            
+            // Swap with input
+            container.innerHTML = `
+                <input type="text" 
+                    class="edit-title-input" 
+                    id="edit-title-input-${id}" 
+                    value="${item.filename}" 
+                    onblur="saveTitle('${id}')" 
+                    onkeydown="if(event.key === 'Enter') saveTitle('${id}')">
+            `;
+            
+            // Focus the new input and select text
+            const input = document.getElementById(`edit-title-input-${id}`);
+            input.focus();
+            input.select();
+        }
+
+        async function saveTitle(id) {
+            const input = document.getElementById(`edit-title-input-${id}`);
+            if (!input) return; // Already saved or unmounted
+
+            const newTitle = input.value.trim();
+            const item = currentItems.find(i => i.id === id);
+
+            if (newTitle && newTitle !== item.filename) {
+                // Optimistic UI update
+                item.filename = newTitle;
+                
+                // Save to backend
+                try {
+                    await fetch(`/api/items/${id}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ filename: newTitle })
+                    });
+                } catch (e) {
+                    console.error("Failed to save title", e);
+                }
+            }
+
+            // Re-render inventory grid to restore standard title HTML
+            renderInventory();
         }
 
         async function saveEdit() {
