@@ -49,6 +49,16 @@ const commands = [
         .setName('refresh_items')
         .setDescription('Refresh all broken Discord image URLs from original messages'),
     new SlashCommandBuilder()
+        .setName('horoscope')
+        .setDescription('Trigger the daily horoscope now (Admin)')
+        .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages),
+    new SlashCommandBuilder()
+        .setName('fake_horoscope')
+        .setDescription('Send a custom horoscope (Indistinguishable from real one)')
+        .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages)
+        .addStringOption(option =>
+            option.setName('message').setDescription('The horoscope message to send').setRequired(true)),
+    new SlashCommandBuilder()
         .setName('condition')
         .setDescription('Look up a specific condition')
         .addStringOption(option =>

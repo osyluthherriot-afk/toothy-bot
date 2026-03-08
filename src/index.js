@@ -116,6 +116,12 @@ const commands = [
         .setDescription('Trigger the daily horoscope now (Admin)')
         .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages),
     new SlashCommandBuilder()
+        .setName('fake_horoscope')
+        .setDescription('Send a custom horoscope (Indistinguishable from real one)')
+        .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages)
+        .addStringOption(option =>
+            option.setName('message').setDescription('The horoscope message to send').setRequired(true)),
+    new SlashCommandBuilder()
         .setName('condition')
         .setDescription('Look up a specific condition')
         .addStringOption(option =>
@@ -266,6 +272,15 @@ client.on('interactionCreate', async interaction => {
         await interaction.deferReply({ ephemeral: true });
         await sendHoroscope(client);
         await interaction.editReply({ content: '🔮 Horoscope sent!' });
+    }
+
+    // --- FAKE HOROSCOPE (ADMIN) ---
+    else if (interaction.commandName === 'fake_horoscope') {
+        await interaction.deferReply({ ephemeral: true });
+        const message = interaction.options.getString('message');
+        const { sendCustomHoroscope } = require('./horoscope');
+        await sendCustomHoroscope(client, message);
+        await interaction.editReply({ content: '🔮 Secret horoscope sent!' });
     }
 
     // --- CONDITION ---

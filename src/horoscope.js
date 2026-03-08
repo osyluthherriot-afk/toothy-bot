@@ -185,4 +185,19 @@ async function sendSecretHoroscope(client) {
     }
 }
 
-module.exports = { scheduleHoroscope, sendHoroscope, sendSecretHoroscope };
+async function sendCustomHoroscope(client, message) {
+    try {
+        const channel = await client.channels.fetch(HOROSCOPE_CHANNEL_ID);
+        if (!channel) {
+            console.error('[HOROSCOPE] Channel not found:', HOROSCOPE_CHANNEL_ID);
+            return;
+        }
+
+        await channel.send(`🔮 **Today's horoscope:**\n${message}`);
+        console.log(`[HOROSCOPE] Sent custom: "${message}"`);
+    } catch (error) {
+        console.error('[HOROSCOPE] Failed to send custom horoscope:', error);
+    }
+}
+
+module.exports = { scheduleHoroscope, sendHoroscope, sendSecretHoroscope, sendCustomHoroscope };
