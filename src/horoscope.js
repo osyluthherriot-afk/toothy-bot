@@ -18,7 +18,6 @@ const HOROSCOPE_MESSAGES = [
     "Canned Coffee",
     "Seven minutes, is all I can spare to play with you...",
     "Canned Coffee",
-    "They say today's our birthday. I'm glad we have made acquaintance. Even though Lord Alure just decided randomly...",
     "Spiders",
     "Bleh!",
     "Field Trap,",
