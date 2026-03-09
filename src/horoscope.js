@@ -11,6 +11,7 @@ const TARGET_MINUTE_UTC = 30;
 
 const HOROSCOPE_MESSAGES = [
     "I'm not telling!",
+    "I'm ready!",
     "Smile wide!",
     "Busy!",
     "Who cares if you share it...",
