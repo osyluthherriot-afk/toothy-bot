@@ -11,19 +11,15 @@ const TARGET_MINUTE_UTC = 30;
 
 const HOROSCOPE_MESSAGES = [
     "I'm not telling!",
-    "I'm ready!",
+    "I'll tell you later.",
     "Smile wide!",
     "Busy!",
-    "Who cares if you share it...",
-    "White Ribbon",
-    "Canned Coffee",
+    "Deja vu.",
+    "Mr. Osyluth won't give me any treats!",
+    "Snake eyes!",
+    "Upside down.",
     "Seven minutes, is all I can spare to play with you...",
-    "Canned Coffee",
-    "Spiders",
     "Bleh!",
-    "Field Trap,",
-    "Opera.",
-    "Three saints! Can you name all of them?",
     "It's romantic somehow",
     "Lalalalala--",
     "Being an adult is difficult...",
@@ -31,16 +27,18 @@ const HOROSCOPE_MESSAGES = [
     "Ingeloakastimizilian.",
     "Invincible killer.",
     "Warlord!",
-    "Hello!! Cal!!",
+    "What's behind door number two?",
+    "It smells like rain.",
+    "Hmmmmm--",
+    "Adulthood taxes you.",
+    "My shoelaces untied themselves!",
+    "Kroklaminzor.",
+    "Unstoppable object.",
+    "Yo!! Morgan!!",
     "The Dark Six.",
-    "Try it.",
     "What's the harm?",
     "I'll go to sleep soon.",
     "That beautiful twinkling of the future that will never fade, no matter when.",
-    "Dreams are good!",
-    "Better not tell you now.",
-    "Outlook not so good.",
-    "Strawberry",
     "Moon",
     "What I just said was a lie.",
     "One, two, three, ooooh!......",
@@ -48,18 +46,8 @@ const HOROSCOPE_MESSAGES = [
     "Dexterity Saving Throw.",
     "New enemy!?",
     "RANDOM_PLAYER", // Special: will mention a random player
-    "Full speed ahead!",
-    "Do it.",
-    "This is useless.",
-    "You should drink only once you're 20!",
     "Ilzabet is...",
     "Suspiciously warm chair.",
-    "Honest Child.",
-    "Just a rock.",
-    "Rock again.",
-    "Monday.",
-    "Critical Miss.",
-    "Nat 20!",
 ];
 
 /**
@@ -113,7 +101,7 @@ async function sendHoroscope(client) {
             if (randomMember) {
                 message = `I know your secret ${randomMember}`;
             } else {
-                message = "I know your secret... but who?";
+                message = "I know your secret... I don't actually, but it's fun to imagine!";
             }
         }
 
