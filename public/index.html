@@ -67,6 +67,30 @@
             --border-color: #4d1a1a;
         }
 
+        [data-theme="gold"] {
+            --bg-color: #080600;
+            --card-bg: #120e02;
+            --slot-bg: #1c1703;
+            --text-color: #f5dfa0;
+            --accent-color: #d4a017;
+            --secondary-color: #c8860a;
+            --gold-color: #ffd700;
+            --soul-color: #7a5c00;
+            --border-color: #3a2d00;
+        }
+
+        [data-theme="library"] {
+            --bg-color: #0c0914;
+            --card-bg: #160f26;
+            --slot-bg: #1f1535;
+            --text-color: #d8c8f0;
+            --accent-color: #a855f7;
+            --secondary-color: #7c3aed;
+            --gold-color: #c084fc;
+            --soul-color: #4c1d95;
+            --border-color: #2e1f4a;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg-color);
@@ -89,7 +113,9 @@
         }
 
         [data-theme="glacial"] #bgCanvas.active,
-        [data-theme="blood"] #bgCanvas.active {
+        [data-theme="blood"] #bgCanvas.active,
+        [data-theme="gold"] #bgCanvas.active,
+        [data-theme="library"] #bgCanvas.active {
             opacity: 1;
         }
 
@@ -653,6 +679,8 @@
                 <option value="default">Default Dark</option>
                 <option value="glacial">Glacial Abyss (Cold/Dark)</option>
                 <option value="blood">Blood Stain (Red/Dark)</option>
+                <option value="gold">Toothy Gold (Black/Gold)</option>
+                <option value="library">Great Library (Dark/Purple)</option>
                 <option value="earthy">Earthy Minimal (Light)</option>
                 <option value="contrast">High Contrast (Accessibility)</option>
             </select>
@@ -735,7 +763,8 @@
 
         function applyShaders(theme, enabled) {
             const canvas = document.getElementById('bgCanvas');
-            if (enabled && (theme === 'glacial' || theme === 'blood')) {
+            const shaderedThemes = ['glacial', 'blood', 'gold', 'library'];
+            if (enabled && shaderedThemes.includes(theme)) {
                 canvas.classList.add('active');
                 
                 // If a different shader is running, stop it first to re-init
@@ -806,24 +835,117 @@
                 void main() {
                     vec2 st = gl_FragCoord.xy / u_resolution.xy;
                     
-                    // Slower time
                     float t = u_time * 0.15;
                     
-                    // Wavy and organic vertical/horizontal blending
                     float wave1 = sin(st.x * 6.0 + t) * 0.5 + 0.5;
                     float wave2 = cos(st.y * 5.0 - t * 1.5) * 0.5 + 0.5;
                     float wave3 = sin((st.x + st.y) * 4.0 + t * 0.8) * 0.5 + 0.5;
                     
-                    // Combine waves to create a subtle, viscous texture
                     float intensity = (wave1 + wave2 + wave3) / 3.0;
                     
-                    // Very dark background to slightly brighter dark red
                     vec3 darkBlood = vec3(0.10, 0.02, 0.02);
-                    vec3 slightRed = vec3(0.35, 0.05, 0.05);
+                    vec3 slightRed  = vec3(0.35, 0.05, 0.05);
                     
                     vec3 finalColor = mix(darkBlood, slightRed, intensity);
-
                     gl_FragColor = vec4(finalColor, 1.0);
+                }
+            `;
+
+            // Toothy Gold Shader — intersecting golden spiral filigree
+            const fsGold = `
+                precision mediump float;
+                uniform vec2 u_resolution;
+                uniform float u_time;
+
+                #define PI 3.14159265
+
+                // Smooth line mask around value v with given width
+                float line(float v, float width) {
+                    return smoothstep(width, 0.0, abs(v));
+                }
+
+                void main() {
+                    vec2 st = gl_FragCoord.xy / u_resolution.xy;
+                    float aspect = u_resolution.x / u_resolution.y;
+                    st.x *= aspect;
+
+                    float t = u_time * 0.10;
+
+                    // Multiple overlapping polar spirals
+                    float glow = 0.0;
+                    for (int i = 0; i < 5; i++) {
+                        float fi = float(i);
+                        // Offset each spiral's centre slightly
+                        vec2 center = vec2(
+                            0.5 * aspect + sin(t + fi * 1.3) * 0.25,
+                            0.5           + cos(t + fi * 0.9) * 0.20
+                        );
+                        vec2 d = st - center;
+                        float r = length(d);
+                        float a = atan(d.y, d.x);
+
+                        // Archimedean spiral: a + r*k = const (mod 2PI)
+                        float k      = 4.0 + fi * 1.5;
+                        float spiral = mod(a + r * k + t * (1.0 + fi * 0.3), PI * 2.0) - PI;
+
+                        // Thin glowing line along spiral
+                        float l = line(spiral, 0.08) * (1.0 - smoothstep(0.0, 0.7, r));
+                        glow += l * (0.5 + 0.5 * sin(r * 8.0 - t * 2.0 + fi));
+                    }
+                    glow = clamp(glow * 0.55, 0.0, 1.0);
+
+                    // Subtle warm haze in bg
+                    vec3 bg    = vec3(0.032, 0.024, 0.000);
+                    vec3 gold  = vec3(0.824, 0.627, 0.039);  // #D4A00A
+                    vec3 white = vec3(1.0,   0.95,  0.7);
+
+                    vec3 finalColor = bg + gold * glow + white * glow * glow * 0.4;
+                    gl_FragColor = vec4(finalColor, 1.0);
+                }
+            `;
+
+            // Great Library Shader — slow arcane purple mist with glimmering particles
+            const fsLibrary = `
+                precision mediump float;
+                uniform vec2 u_resolution;
+                uniform float u_time;
+
+                float hash(vec2 p) {
+                    return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+                }
+
+                float smoothNoise(vec2 p) {
+                    vec2 i = floor(p);
+                    vec2 f = fract(p);
+                    f = f * f * (3.0 - 2.0 * f);
+                    float a = hash(i);
+                    float b = hash(i + vec2(1.0, 0.0));
+                    float c = hash(i + vec2(0.0, 1.0));
+                    float d = hash(i + vec2(1.0, 1.0));
+                    return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+                }
+
+                void main() {
+                    vec2 st = gl_FragCoord.xy / u_resolution.xy;
+                    float t  = u_time * 0.08;
+
+                    // Layered slow noise for misty look
+                    float n1 = smoothNoise(st * 3.0 + vec2(t, t * 0.6));
+                    float n2 = smoothNoise(st * 6.0 - vec2(t * 0.7, t * 1.2));
+                    float n3 = smoothNoise(st * 12.0 + vec2(t * 1.5, -t));
+                    float mist = n1 * 0.55 + n2 * 0.30 + n3 * 0.15;
+
+                    // Tiny sparkling particles
+                    float sparkle = hash(floor(st * 80.0) + floor(t * 2.0));
+                    sparkle = step(0.97, sparkle) * smoothstep(0.97, 1.0, sparkle);
+
+                    vec3 deep   = vec3(0.047, 0.035, 0.082); // #0c091a
+                    vec3 purple = vec3(0.42,  0.18,  0.72);  // arcane purple
+                    vec3 lilac  = vec3(0.72,  0.55,  0.95);  // highlight
+
+                    vec3 col = mix(deep, purple, mist * 0.55);
+                    col += lilac * sparkle * 0.8;
+                    gl_FragColor = vec4(col, 1.0);
                 }
             `;
 
@@ -858,7 +980,9 @@
             const vertexShader = createShader(gl, gl.VERTEX_SHADER, vsSource);
             
             glPrograms['glacial'] = createProgram(fsGlacial);
-            glPrograms['blood'] = createProgram(fsBlood);
+            glPrograms['blood']   = createProgram(fsBlood);
+            glPrograms['gold']    = createProgram(fsGold);
+            glPrograms['library'] = createProgram(fsLibrary);
 
             const positionBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
