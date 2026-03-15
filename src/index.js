@@ -283,6 +283,26 @@ client.on('interactionCreate', async interaction => {
         await interaction.editReply({ content: '🔮 Secret horoscope sent!' });
     }
 
+    // --- TOOTHYTORIAL (ADMIN) ---
+    else if (interaction.commandName === 'toothytorial') {
+        await interaction.deferReply({ ephemeral: true });
+        const text = interaction.options.getString('text');
+        const targetChannelId = '1408049997500387329';
+        
+        try {
+            const channel = await client.channels.fetch(targetChannelId);
+            if (channel && channel.isTextBased()) {
+                await channel.send(`**Toothy-Toothtorial**\n${text}`);
+                await interaction.editReply({ content: `✅ Tutorial sent to <#${targetChannelId}>!` });
+            } else {
+                await interaction.editReply({ content: `❌ Could not find target text channel.` });
+            }
+        } catch (error) {
+            console.error('Error sending tutorial:', error);
+            await interaction.editReply({ content: `❌ Error sending tutorial: ${error.message}` });
+        }
+    }
+
     // --- CONDITION ---
     else if (interaction.commandName === 'condition') {
         const queryName = interaction.options.getString('name').toLowerCase().trim();

@@ -4,10 +4,20 @@
  */
 
 require('dotenv').config();
-const { REST, Routes, SlashCommandBuilder } = require('discord.js');
+const { REST, Routes, SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
 
 const TOKEN = process.env.DISCORD_TOKEN;
-const CLIENT_ID = process.env.CLIENT_ID || '1468962514367676575'; // Your bot's client ID
+// Intelligently get CLIENT_ID from Env, or extract from the first part of the token (Base64)
+let CLIENT_ID = process.env.CLIENT_ID;
+if (!CLIENT_ID || CLIENT_ID.includes('REPLACE')) {
+    try {
+        const parts = TOKEN.split('.');
+        CLIENT_ID = Buffer.from(parts[0], 'base64').toString('utf-8');
+        console.log(`Detected Client ID from token: ${CLIENT_ID}`);
+    } catch (e) {
+        CLIENT_ID = '1468962514367676575'; // Hard fallback to previously seen ID
+    }
+}
 
 const commands = [
     new SlashCommandBuilder()
@@ -64,7 +74,13 @@ const commands = [
         .addStringOption(option =>
             option.setName('name')
                 .setDescription('Name of the condition to look up')
-                .setRequired(true))
+                .setRequired(true)),
+    new SlashCommandBuilder()
+        .setName('toothytorial')
+        .setDescription('Send a tutorial message (Admin Only)')
+        .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages)
+        .addStringOption(option =>
+            option.setName('text').setDescription('The tutorial text to send').setRequired(true))
 ].map(c => c.toJSON());
 
 const rest = new REST({ version: '10' }).setToken(TOKEN);
