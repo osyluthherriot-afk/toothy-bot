@@ -21,8 +21,6 @@ const HOROSCOPE_MESSAGES = [
     "Seven minutes, is all I can spare to play with you...",
     "Bleh!",
     "It's romantic somehow",
-    "Lalalalala--",
-    "Being an adult is difficult...",
     "When I came to, all the money in my wallet had gone!",
     "Ingeloakastimizilian.",
     "Invincible killer.",
@@ -31,7 +29,6 @@ const HOROSCOPE_MESSAGES = [
     "It smells like rain.",
     "Hmmmmm--",
     "Adulthood taxes you.",
-    "My shoelaces untied themselves!",
     "Kroklaminzor.",
     "Unstoppable object.",
     "Yo!! Morgan!!",
@@ -41,12 +38,9 @@ const HOROSCOPE_MESSAGES = [
     "That beautiful twinkling of the future that will never fade, no matter when.",
     "Moon",
     "What I just said was a lie.",
-    "One, two, three, ooooh!......",
     "I don't know...",
     "Dexterity Saving Throw.",
-    "New enemy!?",
     "RANDOM_PLAYER", // Special: will mention a random player
-    "Ilzabet is...",
     "Suspiciously warm chair.",
 ];
 
