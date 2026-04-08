@@ -35,7 +35,6 @@ const HOROSCOPE_MESSAGES = [
     "What's behind door number two?",
     "It smells like rain.",
     "Adulthood taxes you.",
-    "Kroklaminzor.",
     "Unstoppable object.",
     "The Dark Six.",
     "What's the harm?",
@@ -100,7 +99,7 @@ async function sendHoroscope(client) {
             if (randomMember) {
                 message = `I know your secret ${randomMember}`;
             } else {
-                message = "I know your secret... I don't actually, but it's fun to imagine!";
+                message = "Output01_Leak. This horoscope means I'm having memory issues, please check it DM!";
             }
         }
 
