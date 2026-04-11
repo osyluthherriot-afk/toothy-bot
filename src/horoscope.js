@@ -12,7 +12,7 @@ const TARGET_MINUTE_UTC = 30;
 const HOROSCOPE_MESSAGES = [
     "I'm not telling!",
     "I'll tell you later.",
-    "Smile wide!",
+    "Smile wid~e!",
     "Busy!",
     "Deja vu.",
     "Mr. Osyluth won't give me any treats!",
