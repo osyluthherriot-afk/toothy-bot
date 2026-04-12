@@ -80,7 +80,11 @@ const commands = [
         .setDescription('Send a tutorial message (Admin Only)')
         .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages)
         .addStringOption(option =>
-            option.setName('text').setDescription('The tutorial text to send').setRequired(true))
+            option.setName('text').setDescription('The tutorial text to send').setRequired(true)),
+    new SlashCommandBuilder()
+        .setName('download_images')
+        .setDescription('Download all Cloudinary images as a ZIP archive (Admin)')
+        .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages)
 ].map(c => c.toJSON());
 
 const rest = new REST({ version: '10' }).setToken(TOKEN);
