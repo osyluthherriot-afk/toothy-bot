@@ -36,7 +36,6 @@ const HOROSCOPE_MESSAGES = [
     "It smells like rain.",
     "Adulthood taxes you.",
     "Unstoppable object.",
-    "The Dark Six.",
     "What's the harm?",
     "Moon",
     "A crow disagrees.",
