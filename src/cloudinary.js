@@ -34,4 +34,26 @@ async function uploadToCloudinary(imageUrl) {
     }
 }
 
-module.exports = { uploadToCloudinary };
+/**
+ * Generate a download archive URL for all images in the dnd_inventory folder
+ * @returns {string|null} - The download URL or null if failed
+ */
+function getDownloadArchiveUrl() {
+    if (!process.env.CLOUDINARY_URL) {
+        console.warn('[CLOUDINARY] No CLOUDINARY_URL found. Cannot generate archive.');
+        return null;
+    }
+
+    try {
+        // Generates a signed URL to download a ZIP of the folder
+        const url = cloudinary.utils.download_folder('dnd_inventory', {
+            resource_type: 'image'
+        });
+        return url;
+    } catch (error) {
+        console.error('[CLOUDINARY] Error generating download archive URL:', error.message);
+        return null;
+    }
+}
+
+module.exports = { uploadToCloudinary, getDownloadArchiveUrl };

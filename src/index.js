@@ -5,7 +5,7 @@ const { Client, GatewayIntentBits, REST, Routes, SlashCommandBuilder, Partials, 
 const { startServer } = require('./server');
 const db = require('./db');
 const { scheduleHoroscope, sendHoroscope } = require('./horoscope');
-const { uploadToCloudinary } = require('./cloudinary');
+const { uploadToCloudinary, getDownloadArchiveUrl } = require('./cloudinary');
 
 // Connect to DB
 // Database connection managed in init()
@@ -127,7 +127,11 @@ const commands = [
         .addStringOption(option =>
             option.setName('name')
                 .setDescription('Name of the condition to look up')
-                .setRequired(true))
+                .setRequired(true)),
+    new SlashCommandBuilder()
+        .setName('download_images')
+        .setDescription('Download all Cloudinary images as a ZIP archive (Admin)')
+        .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages)
 ].map(c => c.toJSON());
 
 const rest = new REST({ version: '10' }).setToken(TOKEN);
@@ -328,6 +332,17 @@ client.on('interactionCreate', async interaction => {
             replyText += `\n> **Recovery/Fix:** ${conditionData.recovery}`;
         }
         await interaction.reply(replyText);
+    }
+
+    // --- DOWNLOAD IMAGES ---
+    else if (interaction.commandName === 'download_images') {
+        await interaction.deferReply({ ephemeral: true });
+        const url = getDownloadArchiveUrl();
+        if (url) {
+            await interaction.editReply({ content: `📦 **Download Archive Generated!**\nClick here to download all images: [Download ZIP](${url})\n*Note: Link expires soon.*` });
+        } else {
+            await interaction.editReply({ content: `❌ Error generating download link. Cloudinary may not be configured.` });
+        }
     }
 
     // --- RECHECK (Force Re-scan) ---

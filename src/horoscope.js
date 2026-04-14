@@ -12,16 +12,25 @@ const TARGET_MINUTE_UTC = 30;
 const HOROSCOPE_MESSAGES = [
     "I'm not telling!",
     "I'll tell you later.",
-    "Smile wide!",
+    "Smile wide~!",
     "Busy!",
     "Deja vu.",
     "Mr. Osyluth won't give me any treats!",
     "Snake eyes!",
-    "Upside down.",
     "Seven minutes, is all I can spare to play with you...",
     "Ingeloakastimizilian.",
     "Invincible killer.",
     "Warlord!",
+    "An excellent time to owe nothing.",
+    "I don't actually know what a horoscope is.",
+    "Three of them are watching.",
+    "A coin at the bottom of a well.",
+    "The wolf is full.",
+    "Hello!!!",
+    "Freedom.",
+    "Partner.",
+    "Blue!",
+    "Great mage...",
     "What's behind door number two?",
     "What's the harm?",
     "A crow disagrees.",
@@ -37,7 +46,6 @@ const HOROSCOPE_MESSAGES = [
     "It’s right behind you. Don't look.",
     "You’re being watched, but not by anyone in this room.",
     "I don't know...",
-    "Dexterity Saving Throw.",
     "RANDOM_PLAYER", // Special: will mention a random player
     "Suspiciously warm chair.",
 ];
@@ -93,7 +101,7 @@ async function sendHoroscope(client) {
             if (randomMember) {
                 message = `I know your secret ${randomMember}`;
             } else {
-                message = "I know your secret... I don't actually, but it's fun to imagine!";
+                message = "Output01_Leak. This horoscope means I'm having memory issues, please check it DM!";
             }
         }
 
